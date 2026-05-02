@@ -15,8 +15,8 @@ export default function ForgotPassword() {
     setLoading(true);
     setError("");
     try {
-      await forgotPassword({ email });
-      setMessage("Check your email for a password reset link.");
+      const res = await forgotPassword({ email });
+      setMessage(res.data.message || "Check your email for a password reset link.");
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong.");
     } finally {

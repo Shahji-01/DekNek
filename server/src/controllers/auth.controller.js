@@ -62,7 +62,12 @@ export const signUp = asyncHandler(async (req, res) => {
     logger.error(`Welcome email failed for ${email}: ${mailErr.message}`);
   }
 
-  return res.status(201).json(new appResponse(201, { user: data }, "User signed up successfully"));
+  let responseMessage = "User signed up successfully";
+  if (process.env.NODEMAILER_HOST === "sandbox.smtp.mailtrap.io") {
+    responseMessage += ". Note: Using Mailtrap for emails. Check your Mailtrap inbox.";
+  }
+
+  return res.status(201).json(new appResponse(201, { user: data }, responseMessage));
 });
 
 // ─── POST /api/auth/login ─────────────────────────────────────────────────────
@@ -304,8 +309,13 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     throw new appError(500, "Failed to send reset email. Please try again.");
   }
 
+  let responseMessage = "If that email is registered, a reset link has been sent.";
+  if (process.env.NODEMAILER_HOST === "sandbox.smtp.mailtrap.io") {
+    responseMessage += " Note: Using Mailtrap for emails. Check your Mailtrap inbox.";
+  }
+
   return res.status(200).json(
-    new appResponse(200, null, "If that email is registered, a reset link has been sent.")
+    new appResponse(200, null, responseMessage)
   );
 });
 

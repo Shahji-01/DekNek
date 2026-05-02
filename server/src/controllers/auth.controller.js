@@ -84,7 +84,7 @@ export const login = asyncHandler(async (req, res) => {
   if (user.twoFAEnabled) {
     const tempToken = jwt.sign(
       { id: user._id, twoFA: true },
-      process.env.JWT_SECRET_TEMP,
+      process.env.JWT_SECRET_TEMP || "default_temp_secret_change_me",
       { expiresIn: process.env.JWT_EXPIRES_IN_TEMP || "5m" }
     );
     return res.status(200).json(
@@ -245,7 +245,7 @@ export const verifyLogin2FA = asyncHandler(async (req, res) => {
 
   let decoded;
   try {
-    decoded = jwt.verify(tempToken, process.env.JWT_SECRET_TEMP);
+    decoded = jwt.verify(tempToken, process.env.JWT_SECRET_TEMP || "default_temp_secret_change_me");
   } catch (err) {
     throw new appError(401, "Temp token expired or invalid");
   }

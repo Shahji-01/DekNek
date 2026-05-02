@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
+import compression from "compression";
 import rateLimit from "express-rate-limit";
 import cookieParser from "cookie-parser";
 import connectDB from "./configs/db.config.js";
@@ -18,12 +19,22 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Security Middlewares
-app.use(helmet());
+// Middlewares
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+      "img-src": ["'self'", "data:", "https://images.unsplash.com"],
+      "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      "font-src": ["'self'", "https://fonts.gstatic.com"],
+    },
+  },
+}));
 app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:5173", credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(morgan("dev"));
+app.use(compression());
+app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 
 // Rate limiting
 const limiter = rateLimit({
